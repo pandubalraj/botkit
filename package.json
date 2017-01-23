@@ -34,7 +34,7 @@
   "scripts": {
     "pretest": "jscs ./lib/",
     "test": "mocha tests/*.js",
-    "start" : "start facebook_bot.js"
+    "start" : "node facebook_bot.js"
   },
   "repository": {
     "type": "git",
