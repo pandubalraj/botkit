@@ -111,6 +111,17 @@ var controller = Botkit.facebookbot({
 var bot = controller.spawn({
 });
 
+
+var Utterances = {
+    yes: new RegExp(/^(yes|yea|yup|yep|ya|sure|ok|y|yeah|yah|sounds good)/i),
+    no: new RegExp(/^(no|nah|nope|n|never|not a chance)/i),
+    quit: new RegExp(/^(quit|cancel|end|stop|nevermind|never mind)/i),
+    greetings: new RegExp(/^(hi|hello|greetings|hi there|yo|was up|whats up)/),
+    askQuestion: new RegExp(/^(a|1|i have a (question|query|doubt))/),
+    buyInsurance: new RegExp(/^(b|2|i (want|like|would like) to buy (a|an) (insurance|policy|insurance policy))/),
+    carRegNo: new RegExp(/(\b[a-z]{2}-\d{2}-[a-z]{2}-\d{4}\b)/)
+};
+
 controller.setupWebserver(process.env.PORT || 3000, function(err, webserver) {
     controller.createWebhookEndpoints(webserver, bot, function() {
         console.log('ONLINE!');
@@ -133,282 +144,389 @@ controller.setupWebserver(process.env.PORT || 3000, function(err, webserver) {
 
 controller.api.thread_settings.greeting('Hello! I\'m a Botkit bot!');
 controller.api.thread_settings.get_started('sample_get_started_payload');
-controller.api.thread_settings.menu([
-    {
-        "type":"postback",
-        "title":"Hello",
-        "payload":"hello"
-    },
-    {
-        "type":"postback",
-        "title":"Help",
-        "payload":"help"
-    },
-    {
-      "type":"web_url",
-      "title":"Botkit Docs",
-      "url":"https://github.com/howdyai/botkit/blob/master/readme-facebook.md"
-    },
-]);
+// controller.api.thread_settings.menu([
+//     {
+//         "type":"postback",
+//         "title":"Hello",
+//         "payload":"hello"
+//     },
+//     {
+//         "type":"postback",
+//         "title":"Help",
+//         "payload":"help"
+//     },
+//     {
+//       "type":"web_url",
+//       "title":"Botkit Docs",
+//       "url":"https://github.com/howdyai/botkit/blob/master/readme-facebook.md"
+//     },
+// ]);
 
-controller.hears(['quick'], 'message_received', function(bot, message) {
+// controller.hears(['quick'], 'message_received', function(bot, message) {
 
-    bot.reply(message, {
-        text: 'Hey! This message has some quick replies attached.',
-        quick_replies: [
-            {
-                "content_type": "text",
-                "title": "Yes",
-                "payload": "yes",
-            },
-            {
-                "content_type": "text",
-                "title": "No",
-                "payload": "no",
-            }
-        ]
-    });
+//     bot.reply(message, {
+//         text: 'Hey! This message has some quick replies attached.',
+//         quick_replies: [
+//             {
+//                 "content_type": "text",
+//                 "title": "Yes",
+//                 "payload": "yes",
+//             },
+//             {
+//                 "content_type": "text",
+//                 "title": "No",
+//                 "payload": "no",
+//             }
+//         ]
+//     });
 
-});
+// });
 
-controller.hears(['^hello', '^hi'], 'message_received,facebook_postback', function(bot, message) {
-    controller.storage.users.get(message.user, function(err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Hello ' + user.name + '!!');
-        } else {
-            bot.reply(message, 'Hello.');
-        }
-    });
-});
+// controller.hears(['^hello', '^hi'], 'message_received,facebook_postback', function(bot, message) {
+//     controller.storage.users.get(message.user, function(err, user) {
+//         if (user && user.name) {
+//             bot.reply(message, 'Hello ' + user.name + '!!');
+//         } else {
+//             bot.reply(message, 'Hello.');
+//         }
+//     });
+// });
 
-controller.hears(['silent push reply'], 'message_received', function(bot, message) {
-    reply_message = {
-        text: "This message will have a push notification on a mobile phone, but no sound notification",
-        notification_type: "SILENT_PUSH"
-    }
-    bot.reply(message, reply_message)
-})
+// controller.hears(['silent push reply'], 'message_received', function(bot, message) {
+//     reply_message = {
+//         text: "This message will have a push notification on a mobile phone, but no sound notification",
+//         notification_type: "SILENT_PUSH"
+//     }
+//     bot.reply(message, reply_message)
+// })
 
-controller.hears(['no push'], 'message_received', function(bot, message) {
-    reply_message = {
-        text: "This message will not have any push notification on a mobile phone",
-        notification_type: "NO_PUSH"
-    }
-    bot.reply(message, reply_message)
-})
+// controller.hears(['no push'], 'message_received', function(bot, message) {
+//     reply_message = {
+//         text: "This message will not have any push notification on a mobile phone",
+//         notification_type: "NO_PUSH"
+//     }
+//     bot.reply(message, reply_message)
+// })
 
-controller.hears(['structured'], 'message_received', function(bot, message) {
+// controller.hears(['structured'], 'message_received', function(bot, message) {
 
-    bot.startConversation(message, function(err, convo) {
-        convo.ask({
-            attachment: {
-                'type': 'template',
-                'payload': {
-                    'template_type': 'generic',
-                    'elements': [
-                        {
-                            'title': 'Classic White T-Shirt',
-                            'image_url': 'http://petersapparel.parseapp.com/img/item100-thumb.png',
-                            'subtitle': 'Soft white cotton t-shirt is back in style',
-                            'buttons': [
-                                {
-                                    'type': 'web_url',
-                                    'url': 'https://petersapparel.parseapp.com/view_item?item_id=100',
-                                    'title': 'View Item'
-                                },
-                                {
-                                    'type': 'web_url',
-                                    'url': 'https://petersapparel.parseapp.com/buy_item?item_id=100',
-                                    'title': 'Buy Item'
-                                },
-                                {
-                                    'type': 'postback',
-                                    'title': 'Bookmark Item',
-                                    'payload': 'White T-Shirt'
-                                }
-                            ]
-                        },
-                        {
-                            'title': 'Classic Grey T-Shirt',
-                            'image_url': 'http://petersapparel.parseapp.com/img/item101-thumb.png',
-                            'subtitle': 'Soft gray cotton t-shirt is back in style',
-                            'buttons': [
-                                {
-                                    'type': 'web_url',
-                                    'url': 'https://petersapparel.parseapp.com/view_item?item_id=101',
-                                    'title': 'View Item'
-                                },
-                                {
-                                    'type': 'web_url',
-                                    'url': 'https://petersapparel.parseapp.com/buy_item?item_id=101',
-                                    'title': 'Buy Item'
-                                },
-                                {
-                                    'type': 'postback',
-                                    'title': 'Bookmark Item',
-                                    'payload': 'Grey T-Shirt'
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-        }, function(response, convo) {
-            // whoa, I got the postback payload as a response to my convo.ask!
+//     bot.startConversation(message, function(err, convo) {
+//         convo.ask({
+//             attachment: {
+//                 'type': 'template',
+//                 'payload': {
+//                     'template_type': 'generic',
+//                     'elements': [
+//                         {
+//                             'title': 'Classic White T-Shirt',
+//                             'image_url': 'http://petersapparel.parseapp.com/img/item100-thumb.png',
+//                             'subtitle': 'Soft white cotton t-shirt is back in style',
+//                             'buttons': [
+//                                 {
+//                                     'type': 'web_url',
+//                                     'url': 'https://petersapparel.parseapp.com/view_item?item_id=100',
+//                                     'title': 'View Item'
+//                                 },
+//                                 {
+//                                     'type': 'web_url',
+//                                     'url': 'https://petersapparel.parseapp.com/buy_item?item_id=100',
+//                                     'title': 'Buy Item'
+//                                 },
+//                                 {
+//                                     'type': 'postback',
+//                                     'title': 'Bookmark Item',
+//                                     'payload': 'White T-Shirt'
+//                                 }
+//                             ]
+//                         },
+//                         {
+//                             'title': 'Classic Grey T-Shirt',
+//                             'image_url': 'http://petersapparel.parseapp.com/img/item101-thumb.png',
+//                             'subtitle': 'Soft gray cotton t-shirt is back in style',
+//                             'buttons': [
+//                                 {
+//                                     'type': 'web_url',
+//                                     'url': 'https://petersapparel.parseapp.com/view_item?item_id=101',
+//                                     'title': 'View Item'
+//                                 },
+//                                 {
+//                                     'type': 'web_url',
+//                                     'url': 'https://petersapparel.parseapp.com/buy_item?item_id=101',
+//                                     'title': 'Buy Item'
+//                                 },
+//                                 {
+//                                     'type': 'postback',
+//                                     'title': 'Bookmark Item',
+//                                     'payload': 'Grey T-Shirt'
+//                                 }
+//                             ]
+//                         }
+//                     ]
+//                 }
+//             }
+//         }, function(response, convo) {
+//             // whoa, I got the postback payload as a response to my convo.ask!
+//             convo.next();
+//         });
+//     });
+// });
+
+// controller.on('facebook_postback', function(bot, message) {
+//     // console.log(bot, message);
+//    bot.reply(message, 'Great Choice!!!! (' + message.payload + ')');
+
+// });
+
+
+// controller.hears(['call me (.*)', 'my name is (.*)'], 'message_received', function(bot, message) {
+//     var name = message.match[1];
+//     controller.storage.users.get(message.user, function(err, user) {
+//         if (!user) {
+//             user = {
+//                 id: message.user,
+//             };
+//         }
+//         user.name = name;
+//         controller.storage.users.save(user, function(err, id) {
+//             bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
+//         });
+//     });
+// });
+
+// controller.hears(['what is my name', 'who am i'], 'message_received', function(bot, message) {
+//     controller.storage.users.get(message.user, function(err, user) {
+//         if (user && user.name) {
+//             bot.reply(message, 'Your name is ' + user.name);
+//         } else {
+//             bot.startConversation(message, function(err, convo) {
+//                 if (!err) {
+//                     convo.say('I do not know your name yet!');
+//                     convo.ask('What should I call you?', function(response, convo) {
+//                         convo.ask('You want me to call you `' + response.text + '`?', [
+//                             {
+//                                 pattern: 'yes',
+//                                 callback: function(response, convo) {
+//                                     // since no further messages are queued after this,
+//                                     // the conversation will end naturally with status == 'completed'
+//                                     convo.next();
+//                                 }
+//                             },
+//                             {
+//                                 pattern: 'no',
+//                                 callback: function(response, convo) {
+//                                     // stop the conversation. this will cause it to end with status == 'stopped'
+//                                     convo.stop();
+//                                 }
+//                             },
+//                             {
+//                                 default: true,
+//                                 callback: function(response, convo) {
+//                                     convo.repeat();
+//                                     convo.next();
+//                                 }
+//                             }
+//                         ]);
+
+//                         convo.next();
+
+//                     }, {'key': 'nickname'}); // store the results in a field called nickname
+
+//                     convo.on('end', function(convo) {
+//                         if (convo.status == 'completed') {
+//                             bot.reply(message, 'OK! I will update my dossier...');
+
+//                             controller.storage.users.get(message.user, function(err, user) {
+//                                 if (!user) {
+//                                     user = {
+//                                         id: message.user,
+//                                     };
+//                                 }
+//                                 user.name = convo.extractResponse('nickname');
+//                                 controller.storage.users.save(user, function(err, id) {
+//                                     bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
+//                                 });
+//                             });
+
+
+
+//                         } else {
+//                             // this happens if the conversation ended prematurely for some reason
+//                             bot.reply(message, 'OK, nevermind!');
+//                         }
+//                     });
+//                 }
+//             });
+//         }
+//     });
+// });
+
+// controller.hears(['shutdown'], 'message_received', function(bot, message) {
+
+//     bot.startConversation(message, function(err, convo) {
+
+//         convo.ask('Are you sure you want me to shutdown?', [
+//             {
+//                 pattern: bot.utterances.yes,
+//                 callback: function(response, convo) {
+//                     convo.say('Bye!');
+//                     convo.next();
+//                     setTimeout(function() {
+//                         process.exit();
+//                     }, 3000);
+//                 }
+//             },
+//         {
+//             pattern: bot.utterances.no,
+//             default: true,
+//             callback: function(response, convo) {
+//                 convo.say('*Phew!*');
+//                 convo.next();
+//             }
+//         }
+//         ]);
+//     });
+// });
+
+
+// controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], 'message_received',
+//     function(bot, message) {
+
+//         var hostname = os.hostname();
+//         var uptime = formatUptime(process.uptime());
+
+//         bot.reply(message,
+//             ':|] I am a bot. I have been running for ' + uptime + ' on ' + hostname + '.');
+//     });
+
+
+
+// controller.on('message_received', function(bot, message) {
+//     bot.reply(message, 'Try: `what is my name` or `structured` or `call me captain`');
+//     return false;
+// });
+
+
+// function formatUptime(uptime) {
+//     var unit = 'second';
+//     if (uptime > 90) {
+//         uptime = uptime / 60;
+//         unit = 'minute';
+//     }
+//     if (uptime > 90) {
+//         uptime = uptime / 60;
+//         unit = 'hour';
+//     }
+//     if (uptime != 1) {
+//         unit = unit + 's';
+//     }
+
+//     uptime = uptime + ' ' + unit;
+//     return uptime;
+// }
+
+
+
+var greetTheUser = function (response, convo) {
+    convo.say('Hi.. Welcome to the insurance portal');
+    convo.next();
+};
+
+var askHelpRequest = function (err, convo) { // Ask the User if he wants help with buying an insurance or any queries about insurance
+    convo.say('Hi.. Welcome to Auto Insurance!');
+    convo.say('Can you tell me what help do you need today?');
+    convo.ask('\n\n[1] Do you have question?\n[2] Do you want to buy an insurance\n\n', [{
+        pattern: Utterances.askQuestion,
+        callback: function (response, convo) {
+            askQueries(response, convo);
             convo.next();
-        });
-    });
-});
-
-controller.on('facebook_postback', function(bot, message) {
-    // console.log(bot, message);
-   bot.reply(message, 'Great Choice!!!! (' + message.payload + ')');
-
-});
-
-
-controller.hears(['call me (.*)', 'my name is (.*)'], 'message_received', function(bot, message) {
-    var name = message.match[1];
-    controller.storage.users.get(message.user, function(err, user) {
-        if (!user) {
-            user = {
-                id: message.user,
-            };
         }
-        user.name = name;
-        controller.storage.users.save(user, function(err, id) {
-            bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
-        });
-    });
-});
-
-controller.hears(['what is my name', 'who am i'], 'message_received', function(bot, message) {
-    controller.storage.users.get(message.user, function(err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Your name is ' + user.name);
-        } else {
-            bot.startConversation(message, function(err, convo) {
-                if (!err) {
-                    convo.say('I do not know your name yet!');
-                    convo.ask('What should I call you?', function(response, convo) {
-                        convo.ask('You want me to call you `' + response.text + '`?', [
-                            {
-                                pattern: 'yes',
-                                callback: function(response, convo) {
-                                    // since no further messages are queued after this,
-                                    // the conversation will end naturally with status == 'completed'
-                                    convo.next();
-                                }
-                            },
-                            {
-                                pattern: 'no',
-                                callback: function(response, convo) {
-                                    // stop the conversation. this will cause it to end with status == 'stopped'
-                                    convo.stop();
-                                }
-                            },
-                            {
-                                default: true,
-                                callback: function(response, convo) {
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }
-                        ]);
-
-                        convo.next();
-
-                    }, {'key': 'nickname'}); // store the results in a field called nickname
-
-                    convo.on('end', function(convo) {
-                        if (convo.status == 'completed') {
-                            bot.reply(message, 'OK! I will update my dossier...');
-
-                            controller.storage.users.get(message.user, function(err, user) {
-                                if (!user) {
-                                    user = {
-                                        id: message.user,
-                                    };
-                                }
-                                user.name = convo.extractResponse('nickname');
-                                controller.storage.users.save(user, function(err, id) {
-                                    bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
-                                });
-                            });
-
-
-
-                        } else {
-                            // this happens if the conversation ended prematurely for some reason
-                            bot.reply(message, 'OK, nevermind!');
-                        }
-                    });
-                }
-            });
+    }, {
+        pattern: Utterances.buyInsurance,
+        callback: function (response, convo) {
+            convo.say('Awesome lets buy you an insurance.');
+            convo.say('We are glad to help you get a Car Insurance. Please hold on while we connect you to our Insurance Expert. Please answer following few questions, so we can quickly get a quote that suits you!');
+            buyInsurance(response, convo);
+            convo.next();
         }
-    });
-});
-
-controller.hears(['shutdown'], 'message_received', function(bot, message) {
-
-    bot.startConversation(message, function(err, convo) {
-
-        convo.ask('Are you sure you want me to shutdown?', [
-            {
-                pattern: bot.utterances.yes,
-                callback: function(response, convo) {
-                    convo.say('Bye!');
-                    convo.next();
-                    setTimeout(function() {
-                        process.exit();
-                    }, 3000);
-                }
-            },
-        {
-            pattern: bot.utterances.no,
-            default: true,
-            callback: function(response, convo) {
-                convo.say('*Phew!*');
-                convo.next();
-            }
+    }, {
+        default: true,
+        callback: function (response, convo) {
+            convo.say('Please select correctly');
+            convo.repeat();
+            convo.next();
         }
-        ]);
+    }]);
+};
+
+var buyInsurance = function (response, convo) {
+    convo.ask('Do you remember your Car registration number?', [{
+        pattern: Utterances.yes,
+        callback: function (response, convo) {
+            askCarRegNo(response, convo);
+            convo.next();
+        }
+    }, {
+        pattern: Utterances.no,
+        callback: function (response, convo) {
+            convo.say('Ok, no prob!');
+            askCarMake(response, convo);
+            convo.next();
+        }
+    }, {
+        default: true,
+        callback: function (response, convo) {
+            convo.say('Please select correctly');
+            convo.repeat();
+            convo.next();
+        }
+    }]);
+};
+
+var askCarMake = function (response, convo) {
+    response.text = response.text.toLowerCase();
+    convo.ask('Which car do you drive?', [{
+        pattern: Utterances.carRegNo,
+        callback: function (response, convo) {
+            convo.say('Great so you own a ' + response.text);
+            convo.next();
+        }
+    }, {
+        default: true,
+        callback: function (response, convo) {
+            convo.say('I couldn\'t get you');
+            convo.repeat();
+            convo.next();
+        }
+    }]);
+};
+
+var askCarRegNo = function (response, convo) {
+    convo.ask('Please enter your vehicle registration number? (eg: TN-05-AB-1234)', [{
+        pattern: Utterances.carRegNo,
+        callback: function (response, convo) {
+            askCarMake(response, convo);
+            convo.next();
+        }
+    }, {
+        default: true,
+        callback: function (response, convo) {
+            convo.say('Wrong Format');
+            convo.repeat();
+            convo.next();
+        }
+    }]);
+};
+
+var askQueries = function (response, convo) {
+    convo.ask('Awesome ask any question.', function (response, convo) {
+        convo.say('Ok! Good bye.');
+        convo.stop();
     });
+};
+
+msg = "hi"; // Just an arbitary initial message
+bot.startConversation(msg, greetTheUser); // Start the initial Conversation by greeting the User
+controller.hears(['hi'], 'message_received', function (bot, message) { // When the user replies to the above greeting by greeting the bot, Start the conversational flow
+    bot.startConversation(message, askHelpRequest);
 });
-
-
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], 'message_received',
-    function(bot, message) {
-
-        var hostname = os.hostname();
-        var uptime = formatUptime(process.uptime());
-
-        bot.reply(message,
-            ':|] I am a bot. I have been running for ' + uptime + ' on ' + hostname + '.');
-    });
-
-
-
-controller.on('message_received', function(bot, message) {
-    bot.reply(message, 'Try: `what is my name` or `structured` or `call me captain`');
-    return false;
-});
-
-
-function formatUptime(uptime) {
-    var unit = 'second';
-    if (uptime > 90) {
-        uptime = uptime / 60;
-        unit = 'minute';
-    }
-    if (uptime > 90) {
-        uptime = uptime / 60;
-        unit = 'hour';
-    }
-    if (uptime != 1) {
-        unit = unit + 's';
-    }
-
-    uptime = uptime + ' ' + unit;
-    return uptime;
-}
+ 
