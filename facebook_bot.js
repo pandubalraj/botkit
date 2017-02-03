@@ -182,15 +182,15 @@ controller.hears(['quick'], 'message_received', function(bot, message) {
 
 });
 
-// controller.hears(['^hello', '^hi'], 'message_received,facebook_postback', function(bot, message) {
-//     controller.storage.users.get(message.user, function(err, user) {
-//         if (user && user.name) {
-//             bot.reply(message, 'Hello ' + user.name + '!!');
-//         } else {
-//             bot.reply(message, 'Hello.');
-//         }
-//     });
-// });
+controller.hears(['^hello', '^hi'], 'message_received,facebook_postback', function(bot, message) {
+    controller.storage.users.get(message.user, function(err, user) {
+        if (user && user.name) {
+            bot.reply(message, 'Hello ' + user.name + '!!');
+        } else {
+            bot.reply(message, 'Hello.');
+        }
+    });
+});
 
 // controller.hears(['silent push reply'], 'message_received', function(bot, message) {
 //     reply_message = {
@@ -435,47 +435,47 @@ var greetTheUser = function (response, convo) {
 
 var askHelpRequest = function (err, convo) { // Ask the User if he wants help with buying an insurance or any queries about insurance
 
-    convo.ask(message, {
-        text: 'Hey! Can you tell me what help do you need today?',
-        quick_replies: [
-            {
-                "content_type": "text",
-                "title": "Yes",
-                "payload": "yes",
-            },
-            {
-                "content_type": "text",
-                "title": "No",
-                "payload": "no",
-            }
-        ]
-    });
+    // convo.ask(message, {
+    //     text: 'Hey! Can you tell me what help do you need today?',
+    //     quick_replies: [
+    //         {
+    //             "content_type": "text",
+    //             "title": "Yes",
+    //             "payload": "yes",
+    //         },
+    //         {
+    //             "content_type": "text",
+    //             "title": "No",
+    //             "payload": "no",
+    //         }
+    //     ]
+    // });
 
 
-    // convo.say('Hi.. Welcome to Auto Insurance!');
-    // convo.say('Can you tell me what help do you need today?');
-    // convo.ask('\n\n[1] Do you have question?\n[2] Do you want to buy an insurance\n\n', [{
-    //     pattern: Utterances.askQuestion,
-    //     callback: function (response, convo) {
-    //         askQueries(response, convo);
-    //         convo.next();
-    //     }
-    // }, {
-    //     pattern: Utterances.buyInsurance,
-    //     callback: function (response, convo) {
-    //         convo.say('Awesome lets buy you an insurance.');
-    //         convo.say('We are glad to help you get a Car Insurance. Please hold on while we connect you to our Insurance Expert. Please answer following few questions, so we can quickly get a quote that suits you!');
-    //         buyInsurance(response, convo);
-    //         convo.next();
-    //     }
-    // }, {
-    //     default: true,
-    //     callback: function (response, convo) {
-    //         convo.say('Please select correctly');
-    //         convo.repeat();
-    //         convo.next();
-    //     }
-    // }]);
+    convo.say('Hi.. Welcome to Auto Insurance!');
+    convo.say('Can you tell me what help do you need today?');
+    convo.ask('\n\n[1] Do you have question?\n[2] Do you want to buy an insurance\n\n', [{
+        pattern: Utterances.askQuestion,
+        callback: function (response, convo) {
+            askQueries(response, convo);
+            convo.next();
+        }
+    }, {
+        pattern: Utterances.buyInsurance,
+        callback: function (response, convo) {
+            convo.say('Awesome lets buy you an insurance.');
+            convo.say('We are glad to help you get a Car Insurance. Please hold on while we connect you to our Insurance Expert. Please answer following few questions, so we can quickly get a quote that suits you!');
+            buyInsurance(response, convo);
+            convo.next();
+        }
+    }, {
+        default: true,
+        callback: function (response, convo) {
+            convo.say('Please select correctly');
+            convo.repeat();
+            convo.next();
+        }
+    }]);
 };
 
 var buyInsurance = function (response, convo) {
@@ -539,14 +539,16 @@ var askCarRegNo = function (response, convo) {
 
 var askQueries = function (response, convo) {
     convo.ask('Awesome ask any question.', function (response, convo) {
-        convo.say('Ok! Good bye.');
+        convo.say('Bot under training mode. Thanks for your patience. We will update you shortly.');
         convo.stop();
     });
 };
 
-msg = "hi"; // Just an arbitary initial message
-bot.startConversation(msg, greetTheUser); // Start the initial Conversation by greeting the User
-controller.hears(['hi'], 'message_received', function (bot, message) { // When the user replies to the above greeting by greeting the bot, Start the conversational flow
+// msg = "hi"; // Just an arbitary initial message
+// bot.startConversation(msg, greetTheUser); // Start the initial Conversation by greeting the User
+// When the user replies with insurance, Start the conversational flow
+
+controller.hears(['insurance'], 'message_received', function (bot, message) { 
     bot.startConversation(message, askHelpRequest);
 });
  
